@@ -1,46 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Keep all existing styles and structure -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Cargo Storage Calculator</title>
     <style>
-        /* ... (existing styles remain unchanged) ... */
+        /* Basic Reset */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e6d7ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Container for the form */
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        /* Logo styling */
+        .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+
+        /* Heading */
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Form labels */
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Form inputs */
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Button */
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Result display */
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+        }
+
+        #result p {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- ... (existing HTML structure remains unchanged) ... -->
+        <!-- Add your logo here -->
+        <img src="logo.png" alt="Company Logo" class="logo">
+        <h1>Export Cargo Storage Calculator</h1>
+        <form id="storageForm">
+            <label for="cargoType">Cargo Type:</label>
+            <select id="cargoType" required>
+                <option value="local">Local Cargo</option>
+                <option value="transhipment">Transhipment Cargo</option>
+            </select>
+
+            <label for="cargoVolume">Cargo Volume (m³):</label>
+            <input type="number" id="cargoVolume" step="0.01" required>
+
+            <label for="arrivalDate">Arrival/Unstuffing Date:</label>
+            <input type="date" id="arrivalDate" required>
+
+            <label for="collectionDate">Collection/Packing Date:</label>
+            <input type="date" id="collectionDate" required>
+
+            <button type="submit">Calculate</button>
+        </form>
+
+        <div id="result"></div>
     </div>
 
     <script>
         document.getElementById('storageForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
-            // ... (existing input handling code remains unchanged) ...
+            // Get input values
+            const cargoType = document.getElementById('cargoType').value;
+            const cargoVolume = parseFloat(document.getElementById('cargoVolume').value);
+            const arrivalDate = new Date(document.getElementById('arrivalDate').value);
+            const collectionDate = new Date(document.getElementById('collectionDate').value);
 
-            // MODIFIED CALENDAR WEEK CALCULATION
-            function calculateCalendarWeeks(startDate, endDate) {
-                let weeks = 0;
-                let current = new Date(startDate);
-                
-                // Find first Sunday (start of a calendar week)
-                while(current.getDay() !== 0 && current <= endDate) {
-                    current.setDate(current.getDate() + 1);
-                }
-                
-                // If we passed end date during search
-                if(current > endDate) return 1; // Partial week counts as 1
+            // Round up the cargo volume to the nearest whole number
+            const roundedVolume = Math.ceil(cargoVolume);
 
-                // Now count full weeks
-                while(current <= endDate) {
-                    weeks++;
-                    current.setDate(current.getDate() + 7);
+            // Calculate the number of days between arrival and collection (inclusive)
+            const timeDiff = collectionDate - arrivalDate;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+
+            let storageCharges = 0;
+            let chargeableWeeks = 0;
+
+            if (cargoType === 'local') {
+                // Local cargo: $35 per calendar week per m³, 3 free days
+                const freeDays = 3;
+                const ratePerWeek = 35;
+
+                if (daysDiff > freeDays) {
+                    // Calculate chargeable weeks (any partial week counts as full)
+                    chargeableWeeks = calculateCalendarWeeks(arrivalDate, collectionDate);
+                    storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+                } else {
+                    // No charges if stored for 3 days or less
+                    storageCharges = 0;
+                    chargeableWeeks = 0;
                 }
-                
-                return weeks;
+            } else if (cargoType === 'transhipment') {
+                // Transhipment cargo: $25 per calendar week per m³, 14 free days
+                const freeDays = 14;
+                const ratePerWeek = 25;
+
+                if (daysDiff > freeDays) {
+                    const chargeableStartDate = new Date(arrivalDate);
+                    chargeableStartDate.setDate(chargeableStartDate.getDate() + 14); // Skip 14 free days
+                    chargeableWeeks = calculateCalendarWeeks(chargeableStartDate, collectionDate);
+                    storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+                }
             }
 
-            // ... (rest of the code remains unchanged) ...
+            // Display the result
+            document.getElementById('result').innerHTML = `
+                <p>Cargo Volume: ${roundedVolume} m³ (rounded up from ${cargoVolume})</p>
+                <p>Days in Storage: ${daysDiff}</p>
+                <p>Chargeable Weeks: ${chargeableWeeks}</p>
+                <p>Storage Charges: $${storageCharges.toFixed(2)}</p>
+            `;
         });
+
+        // Corrected function to calculate calendar weeks (Sunday to Saturday)
+        function calculateCalendarWeeks(startDate, endDate) {
+            // Ensure startDate and endDate are valid Date objects
+            if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
+                throw new Error("Invalid date objects provided");
+            }
+
+            // Adjust the startDate to the previous Sunday (start of the week)
+            const startSunday = new Date(startDate);
+            startSunday.setDate(startDate.getDate() - startDate.getDay());
+
+            // Adjust the endDate to the next Saturday (end of the week)
+            const endSaturday = new Date(endDate);
+            endSaturday.setDate(endDate.getDate() + (6 - endDate.getDay()));
+
+            // Calculate the difference in time (in milliseconds)
+            const timeDiff = endSaturday - startSunday;
+
+            // Convert the time difference to days
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+            // Calculate the number of weeks
+            const weeks = Math.ceil(daysDiff / 7);
+
+            return weeks;
+        }
     </script>
 </body>
 </html>

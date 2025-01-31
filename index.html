@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #FFC5D3;
+            background-color: #e6d7ff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -126,9 +126,9 @@
             // Round up the cargo volume to the nearest whole number
             const roundedVolume = Math.ceil(cargoVolume);
 
-            // Calculate the number of days between arrival and collection
+            // Calculate the number of days between arrival and collection (inclusive)
             const timeDiff = collectionDate - arrivalDate;
-            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1; // Include both start and end dates
 
             let storageCharges = 0;
             let chargeableWeeks = 0;
@@ -139,7 +139,7 @@
                 const ratePerWeek = 35;
 
                 if (daysDiff > freeDays) {
-                    // Charges start from the 1st day onwards
+                    // Charges start from Day 1 onwards
                     chargeableWeeks = Math.ceil(daysDiff / 7); // Round up to the nearest week
                     storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
                 } else {
@@ -162,6 +162,7 @@
             // Display the result
             document.getElementById('result').innerHTML = `
                 <p>Cargo Volume: ${roundedVolume} m³ (rounded up from ${cargoVolume})</p>
+                <p>Days in Storage: ${daysDiff}</p>
                 <p>Chargeable Weeks: ${chargeableWeeks}</p>
                 <p>Storage Charges: $${storageCharges.toFixed(2)}</p>
             `;

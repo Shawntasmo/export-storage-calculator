@@ -82,7 +82,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Warehouse Storage Calculator</h1>
+        <h1>Export Cargo Storage Calculator</h1>
         <form id="storageForm">
             <label for="cargoType">Cargo Type:</label>
             <select id="cargoType" required>
@@ -123,13 +123,14 @@
             const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
             let storageCharges = 0;
+            let chargeableWeeks = 0;
 
             if (cargoType === 'local') {
                 // Local cargo: $35 per calendar week per m³, no free days
                 const ratePerWeek = 35;
 
                 if (daysDiff > 0) { // Charges start from the first day
-                    const chargeableWeeks = Math.ceil(daysDiff / 7); // Round up to the nearest week
+                    chargeableWeeks = Math.ceil(daysDiff / 7); // Round up to the nearest week
                     storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
                 }
             } else if (cargoType === 'transhipment') {
@@ -139,7 +140,7 @@
 
                 if (daysDiff > freeDays) {
                     const chargeableDays = daysDiff - freeDays;
-                    const chargeableWeeks = Math.ceil(chargeableDays / 7); // Round up to the nearest week
+                    chargeableWeeks = Math.ceil(chargeableDays / 7); // Round up to the nearest week
                     storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
                 }
             }
@@ -147,7 +148,7 @@
             // Display the result
             document.getElementById('result').innerHTML = `
                 <p>Cargo Volume: ${roundedVolume} m³ (rounded up from ${cargoVolume})</p>
-                <p>Days in Storage: ${daysDiff}</p>
+                <p>Chargeable Weeks: ${chargeableWeeks}</p>
                 <p>Storage Charges: $${storageCharges.toFixed(2)}</p>
             `;
         });

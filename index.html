@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #e6d7ff;
+            background-color: #f4f4f4;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -29,7 +29,7 @@
 
         /* Logo styling */
         .logo {
-            max-width: 150px; /* Adjust the size as needed */
+            max-width: 150px; 
             margin-bottom: 20px;
         }
 
@@ -128,7 +128,7 @@
 
             // Calculate the number of days between arrival and collection (inclusive)
             const timeDiff = collectionDate - arrivalDate;
-            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1; // Include both start and end dates
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
 
             let storageCharges = 0;
             let chargeableWeeks = 0;
@@ -139,8 +139,8 @@
                 const ratePerWeek = 35;
 
                 if (daysDiff > freeDays) {
-                    // Charges start from Day 1 onwards
-                    chargeableWeeks = Math.ceil(daysDiff / 7); // Round up to the nearest week
+                    // Calculate chargeable weeks (any partial week counts as full)
+                    chargeableWeeks = calculateCalendarWeeks(arrivalDate, collectionDate);
                     storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
                 } else {
                     // No charges if stored for 3 days or less
@@ -153,8 +153,9 @@
                 const ratePerWeek = 25;
 
                 if (daysDiff > freeDays) {
-                    const chargeableDays = daysDiff - freeDays;
-                    chargeableWeeks = Math.ceil(chargeableDays / 7); // Round up to the nearest week
+                    const chargeableStartDate = new Date(arrivalDate);
+                    chargeableStartDate.setDate(chargeableStartDate.getDate() + 14); // Skip 14 free days
+                    chargeableWeeks = calculateCalendarWeeks(chargeableStartDate, collectionDate);
                     storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
                 }
             }
@@ -167,6 +168,25 @@
                 <p>Storage Charges: $${storageCharges.toFixed(2)}</p>
             `;
         });
+
+        // Function to calculate calendar weeks (Sunday to Saturday)
+        function calculateCalendarWeeks(startDate, endDate) {
+            // Adjust start date to the previous Sunday
+            const adjustedStart = new Date(startDate);
+            adjustedStart.setDate(adjustedStart.getDate() - adjustedStart.getDay());
+
+            // Adjust end date to the next Saturday
+            const adjustedEnd = new Date(endDate);
+            adjustedEnd.setDate(adjustedEnd.getDate() + (6 - adjustedEnd.getDay()));
+
+            // Calculate the difference in milliseconds
+            const timeDiff = adjustedEnd - adjustedStart;
+
+            // Convert to weeks (rounded up)
+            const weeks = Math.ceil(timeDiff / (7 * 24 * 60 * 60 * 1000)) + 1;
+
+            return weeks;
+        }
     </script>
 </body>
 </html>

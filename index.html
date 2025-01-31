@@ -115,6 +115,9 @@
             const arrivalDate = new Date(document.getElementById('arrivalDate').value);
             const collectionDate = new Date(document.getElementById('collectionDate').value);
 
+            // Round up the cargo volume to the nearest whole number
+            const roundedVolume = Math.ceil(cargoVolume);
+
             // Calculate the number of days between arrival and collection
             const timeDiff = collectionDate - arrivalDate;
             const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
@@ -122,14 +125,12 @@
             let storageCharges = 0;
 
             if (cargoType === 'local') {
-                // Local cargo: $35 per calendar week per m³, 3 free days
-                const freeDays = 3;
+                // Local cargo: $35 per calendar week per m³, no free days
                 const ratePerWeek = 35;
 
-                if (daysDiff > freeDays) {
-                    const chargeableDays = daysDiff - freeDays;
-                    const chargeableWeeks = Math.ceil(chargeableDays / 7);
-                    storageCharges = chargeableWeeks * ratePerWeek * cargoVolume;
+                if (daysDiff > 0) { // Charges start from the first day
+                    const chargeableWeeks = Math.ceil(daysDiff / 7); // Round up to the nearest week
+                    storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
                 }
             } else if (cargoType === 'transhipment') {
                 // Transhipment cargo: $25 per calendar week per m³, 14 free days
@@ -138,14 +139,169 @@
 
                 if (daysDiff > freeDays) {
                     const chargeableDays = daysDiff - freeDays;
-                    const chargeableWeeks = Math.ceil(chargeableDays / 7);
-                    storageCharges = chargeableWeeks * ratePerWeek * cargoVolume;
+                    const chargeableWeeks = Math.ceil(chargeableDays / 7); // Round up to the nearest week
+                    storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
                 }
             }
 
             // Display the result
             document.getElementById('result').innerHTML = `
-                <p>Cargo Volume: ${cargoVolume.toFixed(2)} m³</p>
+                <p>Cargo Volume: ${roundedVolume} m³ (rounded up from ${cargoVolume})</p>
+                <p>Days in Storage: ${daysDiff}</p>
+                <p>Storage Charges: $${storageCharges.toFixed(2)}</p>
+            `;
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Storage Calculator</title>
+    <style>
+        /* Basic Reset */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Container for the form */
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        /* Heading */
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Form labels */
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Form inputs */
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Button */
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Result display */
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+        }
+
+        #result p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Warehouse Storage Calculator</h1>
+        <form id="storageForm">
+            <label for="cargoType">Cargo Type:</label>
+            <select id="cargoType" required>
+                <option value="local">Local Cargo</option>
+                <option value="transhipment">Transhipment Cargo</option>
+            </select>
+
+            <label for="cargoVolume">Cargo Volume (m³):</label>
+            <input type="number" id="cargoVolume" step="0.01" required>
+
+            <label for="arrivalDate">Arrival/Unstuffing Date:</label>
+            <input type="date" id="arrivalDate" required>
+
+            <label for="collectionDate">Collection/Packing Date:</label>
+            <input type="date" id="collectionDate" required>
+
+            <button type="submit">Calculate</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('storageForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Get input values
+            const cargoType = document.getElementById('cargoType').value;
+            const cargoVolume = parseFloat(document.getElementById('cargoVolume').value);
+            const arrivalDate = new Date(document.getElementById('arrivalDate').value);
+            const collectionDate = new Date(document.getElementById('collectionDate').value);
+
+            // Round up the cargo volume to the nearest whole number
+            const roundedVolume = Math.ceil(cargoVolume);
+
+            // Calculate the number of days between arrival and collection
+            const timeDiff = collectionDate - arrivalDate;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+            let storageCharges = 0;
+
+            if (cargoType === 'local') {
+                // Local cargo: $35 per calendar week per m³, no free days
+                const ratePerWeek = 35;
+
+                if (daysDiff > 0) { // Charges start from the first day
+                    const chargeableWeeks = Math.ceil(daysDiff / 7); // Round up to the nearest week
+                    storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+                }
+            } else if (cargoType === 'transhipment') {
+                // Transhipment cargo: $25 per calendar week per m³, 14 free days
+                const freeDays = 14;
+                const ratePerWeek = 25;
+
+                if (daysDiff > freeDays) {
+                    const chargeableDays = daysDiff - freeDays;
+                    const chargeableWeeks = Math.ceil(chargeableDays / 7); // Round up to the nearest week
+                    storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+                }
+            }
+
+            // Display the result
+            document.getElementById('result').innerHTML = `
+                <p>Cargo Volume: ${roundedVolume} m³ (rounded up from ${cargoVolume})</p>
                 <p>Days in Storage: ${daysDiff}</p>
                 <p>Storage Charges: $${storageCharges.toFixed(2)}</p>
             `;

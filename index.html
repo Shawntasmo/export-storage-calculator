@@ -24,11 +24,17 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
+            text-align: center;
+        }
+
+        /* Logo styling */
+        .logo {
+            max-width: 150px; /* Adjust the size as needed */
+            margin-bottom: 20px;
         }
 
         /* Heading */
         h1 {
-            text-align: center;
             margin-bottom: 20px;
             color: #333;
         }
@@ -82,6 +88,8 @@
 </head>
 <body>
     <div class="container">
+        <!-- Add your logo here -->
+        <img src="logo.png" alt="Company Logo" class="logo">
         <h1>Export Cargo Storage Calculator</h1>
         <form id="storageForm">
             <label for="cargoType">Cargo Type:</label>

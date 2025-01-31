@@ -139,8 +139,8 @@
                 const ratePerWeek = 35;
 
                 if (daysDiff > freeDays) {
-                    const chargeableDays = daysDiff - freeDays;
-                    chargeableWeeks = Math.ceil(chargeableDays / 7); // Round up to the nearest week
+                    // Charges start from the 1st day onwards
+                    chargeableWeeks = Math.ceil(daysDiff / 7); // Round up to the nearest week
                     storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
                 } else {
                     // No charges if stored for 3 days or less

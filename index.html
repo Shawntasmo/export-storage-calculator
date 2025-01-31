@@ -126,55 +126,37 @@
             // Round up the cargo volume to the nearest whole number
             const roundedVolume = Math.ceil(cargoVolume);
 
-            // Calculate the chargeable period
-            let chargeableStartDate;
-            if (cargoType === 'local') {
-                // Local cargo: Charges start from the arrival date
-                chargeableStartDate = new Date(arrivalDate);
-            } else if (cargoType === 'transhipment') {
-                // Transhipment cargo: Charges start from the 15th day after arrival
-                chargeableStartDate = new Date(arrivalDate);
-                chargeableStartDate.setDate(chargeableStartDate.getDate() + 14); // Add 14 days to skip the 14 free days
-            }
+            // Calculate the number of days between arrival and collection
+            const timeDiff = collectionDate - arrivalDate;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-            // Ensure the chargeable period does not exceed the collection date
-            if (chargeableStartDate > collectionDate) {
-                // No chargeable days
-                document.getElementById('result').innerHTML = `
-                    <p>Cargo Volume: ${roundedVolume} m³ (rounded up from ${cargoVolume})</p>
-                    <p>Chargeable Weeks: 0</p>
-                    <p>Storage Charges: $0.00</p>
-                `;
-                return;
-            }
-
-            // Calculate the number of calendar weeks (Sunday to Saturday)
-            let chargeableWeeks = 0;
-            let currentDate = new Date(chargeableStartDate);
-
-            while (currentDate <= collectionDate) {
-                // Move to the next Sunday
-                if (currentDate.getDay() !== 0) { // If not Sunday
-                    currentDate.setDate(currentDate.getDate() + (7 - currentDate.getDay()));
-                }
-
-                // Increment the week count
-                chargeableWeeks++;
-
-                // Move to the next Saturday
-                currentDate.setDate(currentDate.getDate() + 6);
-            }
-
-            // Calculate storage charges
             let storageCharges = 0;
+            let chargeableWeeks = 0;
+
             if (cargoType === 'local') {
-                // Local cargo: $35 per calendar week per m³
+                // Local cargo: $35 per calendar week per m³, 3 free days
+                const freeDays = 3;
                 const ratePerWeek = 35;
-                storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+
+                if (daysDiff > freeDays) {
+                    const chargeableDays = daysDiff - freeDays;
+                    chargeableWeeks = Math.ceil(chargeableDays / 7); // Round up to the nearest week
+                    storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+                } else {
+                    // No charges if stored for 3 days or less
+                    storageCharges = 0;
+                    chargeableWeeks = 0;
+                }
             } else if (cargoType === 'transhipment') {
-                // Transhipment cargo: $25 per calendar week per m³
+                // Transhipment cargo: $25 per calendar week per m³, 14 free days
+                const freeDays = 14;
                 const ratePerWeek = 25;
-                storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+
+                if (daysDiff > freeDays) {
+                    const chargeableDays = daysDiff - freeDays;
+                    chargeableWeeks = Math.ceil(chargeableDays / 7); // Round up to the nearest week
+                    storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+                }
             }
 
             // Display the result

@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Export Cargo Storage Calculator</title>
+    <!-- Add the Fontshare embed code -->
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
     <style>
         /* Basic Reset */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Satoshi', Arial, sans-serif; /* Apply the new font */
             margin: 0;
             padding: 0;
             background-color: #e6d7ff;
@@ -37,6 +39,7 @@
         h1 {
             margin-bottom: 20px;
             color: #333;
+            font-family: 'Satoshi', Arial, sans-serif; /* Apply the new font */
         }
 
         /* Form labels */
@@ -45,6 +48,7 @@
             margin-bottom: 5px;
             font-weight: bold;
             color: #555;
+            font-family: 'Satoshi', Arial, sans-serif; /* Apply the new font */
         }
 
         /* Form inputs */
@@ -114,7 +118,7 @@
     </div>
 
     <script>
-        document.getElementById('storageForm').addEventListener('submit', function(event) {
+       document.getElementById('storageForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
             // Get input values

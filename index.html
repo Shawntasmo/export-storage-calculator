@@ -9,37 +9,40 @@
     <style>
         /* Basic Reset */
         body {
-            font-family: 'Satoshi', Arial, sans-serif; /* Apply the new font */
+            font-family: 'Satoshi', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #102542; /* Deep navy background */
+            background: linear-gradient(135deg, #102542, #08182D); /* Gradient background */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            color: #fff; /* Default text color */
         }
 
         /* Container for the form */
         .container {
-            background-color: #fff; /* White container background */
+            background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(248, 112, 96, 0.1); /* Subtle coral shadow */
             width: 300px;
             text-align: center;
+            color: #102542; /* Text color for container */
         }
 
         /* Logo styling */
         .logo {
             max-width: 150px;
             margin-bottom: 20px;
+            cursor: pointer; /* Make logo clickable */
         }
 
         /* Heading */
         h1 {
             margin-bottom: 20px;
-            color: #102542; /* Deep navy for heading */
-            font-family: 'Satoshi', Arial, sans-serif; /* Apply the new font */
+            color: #102542;
+            font-family: 'Satoshi', Arial, sans-serif;
         }
 
         /* Form labels */
@@ -47,8 +50,8 @@
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            color: #102542; /* Deep navy for labels */
-            font-family: 'Satoshi', Arial, sans-serif; /* Apply the new font */
+            color: #102542;
+            font-family: 'Satoshi', Arial, sans-serif;
         }
 
         /* Form inputs */
@@ -65,16 +68,17 @@
         button {
             width: 100%;
             padding: 10px;
-            background-color: #F87060; /* Vibrant coral button */
-            color: #fff; /* White text */
+            background-color: #F87060;
+            color: #fff;
             border: none;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease; /* Button animation */
         }
-
         button:hover {
-            background-color: #E05A4A; /* Slightly darker coral on hover */
+            background-color: #E05A4A;
+            transform: scale(1.05); /* Slightly enlarge the button */
         }
 
         /* Result display */
@@ -82,38 +86,51 @@
             margin-top: 20px;
             text-align: center;
             font-size: 18px;
-            color: #102542; /* Deep navy for result text */
+            color: #102542;
+            background: #f9f9f9; /* Light background for result */
+            padding: 10px;
+            border-radius: 4px;
         }
 
         #result p {
             margin: 5px 0;
+        }
+
+        /* Loading spinner */
+        #loading {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #102542;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Add your logo here -->
-        <img src="logo.png" alt="Company Logo" class="logo">
+        <img src="logo.png" alt="Company Logo" class="logo" onclick="alert('🚀 Thanks for using our calculator!')">
         <h1>Export Cargo Storage Calculator</h1>
         <form id="storageForm">
             <label for="cargoType">Cargo Type:</label>
-            <select id="cargoType" required>
+            <select id="cargoType" required title="Select the type of cargo.">
                 <option value="local">Local Cargo</option>
                 <option value="transhipment">Transhipment Cargo</option>
             </select>
 
             <label for="cargoVolume">Cargo Volume (m³):</label>
-            <input type="number" id="cargoVolume" step="0.01" required>
+            <input type="number" id="cargoVolume" step="0.01" required title="Enter the total volume of your cargo in cubic meters.">
 
             <label for="arrivalDate">Sent In/Unstuffing Date:</label>
-            <input type="date" id="arrivalDate" required>
+            <input type="date" id="arrivalDate" required title="Enter the date the cargo was received.">
 
             <label for="collectionDate">Withdrawal/Packing Date:</label>
-            <input type="date" id="collectionDate" required>
+            <input type="date" id="collectionDate" required title="Enter the date the cargo will be collected.">
 
             <button type="submit">Calculate</button>
+            <button type="button" onclick="resetForm()">Reset</button>
         </form>
 
+        <div id="loading">Calculating...</div>
         <div id="result"></div>
     </div>
 
@@ -121,57 +138,79 @@
         document.getElementById('storageForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
-            // Get input values
-            const cargoType = document.getElementById('cargoType').value;
-            const cargoVolume = parseFloat(document.getElementById('cargoVolume').value);
-            const arrivalDate = new Date(document.getElementById('arrivalDate').value);
-            const collectionDate = new Date(document.getElementById('collectionDate').value);
+            // Show loading spinner
+            document.getElementById('loading').style.display = 'block';
 
-            // Round up the cargo volume to the nearest whole number
-            const roundedVolume = Math.ceil(cargoVolume);
+            // Simulate a delay for the loading spinner
+            setTimeout(() => {
+                // Get input values
+                const cargoType = document.getElementById('cargoType').value;
+                const cargoVolume = parseFloat(document.getElementById('cargoVolume').value);
+                const arrivalDate = new Date(document.getElementById('arrivalDate').value);
+                const collectionDate = new Date(document.getElementById('collectionDate').value);
 
-            // Calculate the number of days between arrival and collection (inclusive)
-            const timeDiff = collectionDate - arrivalDate;
-            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-
-            let storageCharges = 0;
-            let chargeableWeeks = 0;
-
-            if (cargoType === 'local') {
-                // Local cargo: $35 per calendar week per m³, 3 free days
-                const freeDays = 3;
-                const ratePerWeek = 35;
-
-                if (daysDiff > freeDays) {
-                    // Calculate chargeable weeks (any partial week counts as full)
-                    chargeableWeeks = calculateCalendarWeeks(arrivalDate, collectionDate);
-                    storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
-                } else {
-                    // No charges if stored for 3 days or less
-                    storageCharges = 0;
-                    chargeableWeeks = 0;
+                // Validate dates
+                if (collectionDate < arrivalDate) {
+                    alert("Withdrawal/Packing Date cannot be before Sent In/Unstuffing Date.");
+                    document.getElementById('loading').style.display = 'none';
+                    return;
                 }
-            } else if (cargoType === 'transhipment') {
-                // Transhipment cargo: $25 per calendar week per m³, 14 free days
-                const freeDays = 14;
-                const ratePerWeek = 25;
 
-                if (daysDiff > freeDays) {
-                    const chargeableStartDate = new Date(arrivalDate);
-                    chargeableStartDate.setDate(chargeableStartDate.getDate() + 14); // Skip 14 free days
-                    chargeableWeeks = calculateCalendarWeeks(chargeableStartDate, collectionDate);
-                    storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+                // Round up the cargo volume to the nearest whole number
+                const roundedVolume = Math.ceil(cargoVolume);
+
+                // Calculate the number of days between arrival and collection (inclusive)
+                const timeDiff = collectionDate - arrivalDate;
+                const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+
+                let storageCharges = 0;
+                let chargeableWeeks = 0;
+
+                if (cargoType === 'local') {
+                    // Local cargo: $35 per calendar week per m³, 3 free days
+                    const freeDays = 3;
+                    const ratePerWeek = 35;
+
+                    if (daysDiff > freeDays) {
+                        // Calculate chargeable weeks (any partial week counts as full)
+                        chargeableWeeks = calculateCalendarWeeks(arrivalDate, collectionDate);
+                        storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+                    } else {
+                        // No charges if stored for 3 days or less
+                        storageCharges = 0;
+                        chargeableWeeks = 0;
+                    }
+                } else if (cargoType === 'transhipment') {
+                    // Transhipment cargo: $25 per calendar week per m³, 14 free days
+                    const freeDays = 14;
+                    const ratePerWeek = 25;
+
+                    if (daysDiff > freeDays) {
+                        const chargeableStartDate = new Date(arrivalDate);
+                        chargeableStartDate.setDate(chargeableStartDate.getDate() + 14); // Skip 14 free days
+                        chargeableWeeks = calculateCalendarWeeks(chargeableStartDate, collectionDate);
+                        storageCharges = chargeableWeeks * ratePerWeek * roundedVolume;
+                    }
                 }
-            }
 
-            // Display the result
-            document.getElementById('result').innerHTML = `
-                <p>Cargo Volume: ${roundedVolume} m³ (rounded up from ${cargoVolume})</p>
-                <p>Days in Storage: ${daysDiff}</p>
-                <p>Chargeable Weeks: ${chargeableWeeks}</p>
-                <p>Storage Charges: $${storageCharges.toFixed(2)}</p>
-            `;
+                // Display the result
+                document.getElementById('result').innerHTML = `
+                    <p><strong>Cargo Volume:</strong> ${roundedVolume} m³ (rounded up from ${cargoVolume})</p>
+                    <p><strong>Days in Storage:</strong> ${daysDiff}</p>
+                    <p><strong>Chargeable Weeks:</strong> ${chargeableWeeks}</p>
+                    <p><strong>Storage Charges:</strong> $${storageCharges.toFixed(2)}</p>
+                `;
+
+                // Hide loading spinner
+                document.getElementById('loading').style.display = 'none';
+            }, 1000); // Simulate a 1-second delay
         });
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('storageForm').reset();
+            document.getElementById('result').innerHTML = '';
+        }
 
         // Corrected function to calculate calendar weeks (Sunday to Saturday)
         function calculateCalendarWeeks(startDate, endDate) {

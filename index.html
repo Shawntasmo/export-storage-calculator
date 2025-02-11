@@ -81,6 +81,11 @@
             transform: scale(1.05); /* Slightly enlarge the button */
         }
 
+        /* Reset button spacing */
+        button[type="button"] {
+            margin-top: 15px; /* Add space above the Reset button */
+        }
+
         /* Result display */
         #result {
             margin-top: 20px;
@@ -121,10 +126,10 @@
             <input type="number" id="cargoVolume" step="0.01" required title="Enter the total volume of your cargo in cubic meters.">
 
             <label for="arrivalDate">Sent In/Unstuffing Date:</label>
-            <input type="date" id="arrivalDate" required title="Enter the date the cargo was received.">
+            <input type="date" id="arrivalDate" required title="Enter the date the cargo was received/unstuffed.">
 
             <label for="collectionDate">Withdrawal/Packing Date:</label>
-            <input type="date" id="collectionDate" required title="Enter the date the cargo will be collected.">
+            <input type="date" id="collectionDate" required title="Enter the date the cargo will be withdrawn/packed.">
 
             <button type="submit">Calculate</button>
             <button type="button" onclick="resetForm()">Reset</button>

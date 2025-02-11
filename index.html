@@ -13,6 +13,8 @@
             margin: 0;
             padding: 0;
             background: linear-gradient(135deg, #102542, #08182D); /* Gradient background */
+            background-size: 200% 200%;
+            animation: gradientShift 10s ease infinite; /* Background animation */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -20,15 +22,31 @@
             color: #fff; /* Default text color */
         }
 
+        /* Background animation */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         /* Container for the form */
         .container {
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
             padding: 20px;
             border-radius: 8px;
+            border: 1px solid rgba(248, 112, 96, 0.2); /* Subtle coral border */
             box-shadow: 0 0 10px rgba(248, 112, 96, 0.1); /* Subtle coral shadow */
             width: 300px;
             text-align: center;
             color: #102542; /* Text color for container */
+            animation: fadeIn 0.5s ease-in-out; /* Fade-in animation */
+            position: relative;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* Logo styling */
@@ -36,6 +54,10 @@
             max-width: 150px;
             margin-bottom: 20px;
             cursor: pointer; /* Make logo clickable */
+            transition: transform 0.2s ease; /* Logo hover effect */
+        }
+        .logo:hover {
+            transform: scale(1.05); /* Slightly enlarge the logo */
         }
 
         /* Heading */
@@ -62,28 +84,38 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Input hover and focus effects */
+        }
+        input:hover, select:hover {
+            border-color: #F87060; /* Coral border on hover */
+        }
+        input:focus, select:focus {
+            border-color: #F87060; /* Coral border on focus */
+            box-shadow: 0 0 5px rgba(248, 112, 96, 0.5); /* Subtle glow */
         }
 
         /* Button */
         button {
             width: 100%;
             padding: 10px;
-            background-color: #F87060;
+            background: linear-gradient(135deg, #F87060, #E05A4A); /* Coral gradient */
             color: #fff;
             border: none;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease; /* Button animation */
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; /* Button animation */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
         }
         button:hover {
-            background-color: #E05A4A;
+            background: linear-gradient(135deg, #E05A4A, #F87060); /* Reverse gradient on hover */
             transform: scale(1.05); /* Slightly enlarge the button */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Slightly larger shadow on hover */
         }
 
         /* Reset button spacing */
         button[type="button"] {
-            margin-top: 15px; /* Add space above the Reset button */
+            margin-top: 10px; /* Add space above the Reset button */
         }
 
         /* Result display */
@@ -95,10 +127,20 @@
             background: #f9f9f9; /* Light background for result */
             padding: 10px;
             border-radius: 4px;
+            transition: transform 0.2s ease; /* Result hover effect */
+        }
+        #result:hover {
+            transform: scale(1.02); /* Slightly enlarge the result section */
         }
 
+        /* Result text animation */
         #result p {
             margin: 5px 0;
+            animation: slideIn 0.5s ease; /* Slide-in animation */
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         /* Loading spinner */
@@ -108,12 +150,27 @@
             font-size: 18px;
             color: #102542;
         }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #102542;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #F87060;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #E05A4A;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Add your logo here -->
-        <img src="logo.png" alt="Company Logo" class="logo" onclick="alert('🚀 Thanks for using our calculator! Huat Ah!!')">
+        <img src="logo.png" alt="Company Logo" class="logo" onclick="alert('🚀 Thanks for using our calculator!')">
         <h1>Export Cargo Storage Calculator</h1>
         <form id="storageForm">
             <label for="cargoType">Cargo Type:</label>
@@ -126,10 +183,10 @@
             <input type="number" id="cargoVolume" step="0.01" required title="Enter the total volume of your cargo in cubic meters.">
 
             <label for="arrivalDate">Sent In/Unstuffing Date:</label>
-            <input type="date" id="arrivalDate" required title="Enter the date the cargo was received/unstuffed.">
+            <input type="date" id="arrivalDate" required title="Enter the date the cargo was received.">
 
             <label for="collectionDate">Withdrawal/Packing Date:</label>
-            <input type="date" id="collectionDate" required title="Enter the date the cargo will be withdrawn/packed.">
+            <input type="date" id="collectionDate" required title="Enter the date the cargo will be collected.">
 
             <button type="submit">Calculate</button>
             <button type="button" onclick="resetForm()">Reset</button>

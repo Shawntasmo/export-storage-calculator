@@ -15,10 +15,6 @@
             background: linear-gradient(135deg, #102542, #08182D); /* Gradient background */
             background-size: 200% 200%;
             animation: gradientShift 10s ease infinite; /* Background animation */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             color: #fff; /* Default text color */
         }
 
@@ -27,6 +23,46 @@
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+            padding: 10px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 15px;
+            padding: 10px 20px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .navbar button:hover {
+            background-color: rgba(248, 112, 96, 0.2); /* Coral hover effect */
+            color: #F87060;
+        }
+        .navbar button.active {
+            background-color: #F87060; /* Coral background for active tab */
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        /* Main Content */
+        .content {
+            padding-top: 80px; /* Space for the fixed navbar */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
 
         /* Container for the form */
@@ -99,7 +135,7 @@
             width: 100%;
             padding: 10px;
             background: linear-gradient(135deg, #F87060, #E05A4A); /* Coral gradient */
-            color: #08182D;
+            color: #fff;
             border: none;
             border-radius: 4px;
             font-size: 16px;
@@ -151,52 +187,103 @@
             color: #102542;
         }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
+        /* About Page */
+        .about {
+            display: none; /* Hidden by default */
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(248, 112, 96, 0.2); /* Subtle coral border */
+            box-shadow: 0 0 10px rgba(248, 112, 96, 0.1); /* Subtle coral shadow */
+            width: 300px;
+            text-align: center;
+            color: #102542; /* Text color for container */
+            animation: fadeIn 0.5s ease-in-out; /* Fade-in animation */
+            position: relative;
         }
-        ::-webkit-scrollbar-track {
-            background: #102542;
+        .about h1 {
+            margin-bottom: 20px;
+            color: #102542;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #F87060;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #E05A4A;
+        .about p {
+            font-size: 14px;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Add your logo here -->
-        <img src="logo.png" alt="Company Logo" class="logo" onclick="alert('🚀 Thanks for using our calculator!')">
-        <h1>Export Cargo Storage Calculator</h1>
-        <form id="storageForm">
-            <label for="cargoType">Cargo Type:</label>
-            <select id="cargoType" required title="Select the type of cargo.">
-                <option value="local">Local Cargo</option>
-                <option value="transhipment">Transhipment Cargo</option>
-            </select>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <button onclick="showTab('calculator')" class="active">Calculator</button>
+        <button onclick="showTab('about')">About</button>
+    </div>
 
-            <label for="cargoVolume">Cargo Volume (m³):</label>
-            <input type="number" id="cargoVolume" step="0.01" required title="Enter the total volume of your cargo in cubic meters.">
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Calculator Tab -->
+        <div id="calculator" class="container">
+            <!-- Add your logo here -->
+            <img src="logo.png" alt="Company Logo" class="logo" onclick="alert('🚀 Thanks for using our calculator!')">
+            <h1>Export Cargo Storage Calculator</h1>
+            <form id="storageForm">
+                <label for="cargoType">Cargo Type:</label>
+                <select id="cargoType" required title="Select the type of cargo.">
+                    <option value="local">Local Cargo</option>
+                    <option value="transhipment">Transhipment Cargo</option>
+                </select>
 
-            <label for="arrivalDate">Sent In/Unstuffing Date:</label>
-            <input type="date" id="arrivalDate" required title="Enter the date the cargo was received.">
+                <label for="cargoVolume">Cargo Volume (m³):</label>
+                <input type="number" id="cargoVolume" step="0.01" required title="Enter the total volume of your cargo in cubic meters.">
 
-            <label for="collectionDate">Withdrawal/Packing Date:</label>
-            <input type="date" id="collectionDate" required title="Enter the date the cargo will be collected.">
+                <label for="arrivalDate">Sent In/Unstuffing Date:</label>
+                <input type="date" id="arrivalDate" required title="Enter the date the cargo was received.">
 
-            <button type="submit">Calculate</button>
-            <button type="button" onclick="resetForm()">Reset</button>
-        </form>
+                <label for="collectionDate">Withdrawal/Packing Date:</label>
+                <input type="date" id="collectionDate" required title="Enter the date the cargo will be collected.">
 
-        <div id="loading">Calculating...</div>
-        <div id="result"></div>
+                <button type="submit">Calculate</button>
+                <button type="button" onclick="resetForm()">Reset</button>
+            </form>
+
+            <div id="loading">Calculating...</div>
+            <div id="result"></div>
+        </div>
+
+        <!-- About Tab -->
+        <div id="about" class="about">
+            <h1>About Us</h1>
+            <p>
+                Welcome to the Export Cargo Storage Calculator! Our mission is to provide a simple and efficient tool
+                for calculating storage charges for your cargo. Whether you're dealing with local or transhipment cargo,
+                our calculator ensures accurate and reliable results.
+            </p>
+            <p>
+                If you have any questions or feedback, feel free to reach out to us. We're here to help!
+            </p>
+        </div>
     </div>
 
     <script>
+        // Function to show/hide tabs
+        function showTab(tabName) {
+            // Hide all tabs
+            document.getElementById('calculator').style.display = 'none';
+            document.getElementById('about').style.display = 'none';
+
+            // Show the selected tab
+            document.getElementById(tabName).style.display = 'block';
+
+            // Update active button
+            document.querySelectorAll('.navbar button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelector(`.navbar button[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // Show the Calculator tab by default
+        showTab('calculator');
+
+        // Calculator functionality
         document.getElementById('storageForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
